@@ -16,8 +16,6 @@ A serverless, browser-based tool designed for live event production (graduations
 * **OBS-Ready:** Dedicated "OBS Mode" with specific layout (Vertical Center Left) and Green Screen support.
 * **Animations:** Smooth fade-in/fade-out transitions (toggleable).
 
----
-
 ## 🚀 Getting Started
 
 ### 1. Installation
@@ -42,8 +40,6 @@ Place all student photos in a single folder on your computer.
 * **Naming Convention:** The filename must match the Student ID.
 * **Example:** If the ID is `10001`, the photo must be named `10001.jpg` or `10001.png`.
 
----
-
 ## 🖥️ How to Use (The 2-Window Workflow)
 
 To keep the broadcast clean while giving the operator controls, use the **Dual Window** method:
@@ -65,8 +61,6 @@ To keep the broadcast clean while giving the operator controls, use the **Dual W
 2.  Select `[chrome.exe]: 🔴 OBS OUTPUT`.
 3.  *(Optional)* If you want to remove the background, click **🎨 Green** on the controller and use a **Chroma Key** filter in OBS.
 
----
-
 ## 🎮 Controls
 
 | Button | Function |
@@ -76,8 +70,6 @@ To keep the broadcast clean while giving the operator controls, use the **Dual W
 | **🎨 Green** | Toggles the background to bright green for Chroma Keying.
 | **📺 OBS Mode** | Switches the current window to "Output Mode" (hides UI, changes layout). |
 | **❌ Clear** | Removes the current student card from the screen. |
-
----
 
 ## 🔧 Troubleshooting
 
