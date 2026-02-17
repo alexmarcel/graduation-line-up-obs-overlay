@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scanner (Vertical Center OBS)</title>
+    <style>
+        /* --- MAIN LAYOUT --- */
+        body {
+            background-color: #1a1a1a; 
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;       
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+        body.chroma-mode { background-color: #00b140; }
+
+        /* --- OBS VIEW (LEFT SIDE, VERTICALLY CENTERED) --- */
+        body.obs-view {
+            /* This centers it vertically */
+            justify-content: center; 
+            
+            /* This aligns it to the left */
+            align-items: flex-start;   
+            
+            padding-left: 60px; 
+            padding-bottom: 0;      
+        }
+
+        /* --- DISPLAY CARD --- */
+        #displayCard {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px 45px;
+            border-radius: 100px 20px 20px 100px; 
+            border-right: 10px solid #00d2ff;     
+            min-width: 600px;
+            
+            display: flex;
+            align-items: center; 
+            gap: 40px;
+
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        
+        body.obs-view #displayCard {
+            min-width: 700px;
+            box-shadow: none; 
+        }
+        
+        #displayCard.visible { opacity: 1; transform: translateY(0); }
+
+        /* --- PHOTO STYLING --- */
+        #studentPhoto {
+            width: 180px; height: 180px;
+            object-fit: cover; 
+            border-radius: 50%;
+            border: 5px solid #00d2ff;
+            background-color: #333;
+            flex-shrink: 0; 
+            opacity: 1; transform: none; transition: none;
+        }
+
+        /* --- TEXT CONTAINER --- */
+        .text-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column; 
+            gap: 15px; 
+            align-items: center; 
+            text-align: center;
+        }
+
+        /* Left Align for OBS */
+        body.obs-view .text-container {
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        /* --- TEXT STYLES --- */
+        .student-name { 
+            font-size: 55px; font-weight: 800; 
+            line-height: 1; text-transform: uppercase; 
+            border-bottom: 2px solid #444; padding-bottom: 10px;
+            width: 100%; 
+            opacity: 1; transform: none; transition: none; 
+        }
+        
+        .detail-row {
+            display: flex; flex-direction: column; gap: 0px;
+            opacity: 1; transform: none; transition: none;
+        }
+
+        .label { 
+            font-size: 14px; color: #aaa; text-transform: uppercase; 
+            font-weight: 600; letter-spacing: 2px; margin-bottom: 2px;
+        }
+        
+        #groupText { font-size: 35px; font-weight: bold; color: #00d2ff; line-height: 1; }
+        #marksText { font-size: 65px; font-weight: 800; color: #00d2ff; line-height: 0.9; }
+
+        /* --- ANIMATION LOGIC --- */
+        .anim-enabled #studentPhoto { opacity: 0; transform: scale(0.8); transition: all 0.5s ease-out; }
+        .anim-enabled .student-name { opacity: 0; transform: translateX(20px); transition: all 0.5s ease-out; }
+        .anim-enabled .detail-row { opacity: 0; transform: translateX(20px); transition: all 0.5s ease-out; }
+        
+        #displayCard.visible.anim-enabled #studentPhoto { opacity: 1; transform: scale(1); transition-delay: 0s; }
+        #displayCard.visible.anim-enabled .student-name { opacity: 1; transform: translateX(0); transition-delay: 0.1s; }
+        #displayCard.visible.anim-enabled .row-group   { opacity: 1; transform: translateX(0); transition-delay: 0.2s; }
+        #displayCard.visible.anim-enabled .row-marks   { opacity: 1; transform: translateX(0); transition-delay: 0.3s; }
+
+        /* --- CONTROLS CONTAINER --- */
+        #controls {
+            position: absolute; bottom: 20px; right: 20px; z-index: 50;
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            opacity: 1; 
+            width: 300px;
+        }
+        body.obs-view #controls, body.obs-view #status-bar { display: none !important; }
+
+        /* --- BUTTONS --- */
+        button, .file-upload {
+            padding: 10px 15px; cursor: pointer;
+            background: #333; color: white; border: 1px solid #555;
+            border-radius: 8px; font-size: 14px; font-weight: bold;
+            text-align: center; width: 100%; box-sizing: border-box;
+        }
+        button:hover, .file-upload:hover { background: #444; }
+        
+        .btn-row { display: flex; gap: 10px; }
+
+        /* BIG SEARCH BUTTON */
+        #btnSearch {
+            padding: 25px;
+            font-size: 24px;
+            background-color: #ff9900; 
+            color: black;
+            border: none;
+            box-shadow: 0 4px 10px rgba(255, 153, 0, 0.4);
+        }
+        #btnSearch:hover { background-color: #ffcc00; transform: scale(1.02); }
+
+        .btn-clear:hover { background: #ff4444; color: white; border-color: #ff4444; }
+        .btn-toggle-off { border-left: 5px solid #ff4444; }
+        .btn-toggle-on { border-left: 5px solid #00d2ff; }
+        input[type="file"] { display: none; }
+        
+        /* --- SEARCH MODAL --- */
+        #searchModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 999;
+            display: none; flex-direction: column; align-items: center; padding-top: 100px;
+        }
+        #searchModal.active { display: flex; }
+        #searchInput {
+            width: 60%; padding: 20px; font-size: 30px; border-radius: 10px;
+            border: 2px solid #444; outline: none; background: #222; color: white; margin-bottom: 20px;
+        }
+        #searchResults { width: 60%; max-height: 60vh; overflow-y: auto; list-style: none; padding: 0; }
+        .result-item {
+            background: #333; padding: 20px; margin-bottom: 8px; border-radius: 8px;
+            cursor: pointer; color: #fff; display: flex; justify-content: space-between;
+        }
+        .result-item:hover { background: #00d2ff; color: #000; }
+        .close-btn { position: absolute; top: 30px; right: 40px; font-size: 40px; color: #666; cursor: pointer; }
+
+        #status-bar { position: absolute; top: 10px; left: 10px; color: #888; font-size: 14px; }
+        #barcodeInput { position: absolute; opacity: 0; top: -5000px; }
+    </style>
+</head>
+<body>
+
+    <div id="status-bar">Waiting for CSV & Photos...</div>
+
+    <div id="displayCard">
+        <img id="studentPhoto" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=" alt="Student Photo">
+        
+        <div class="text-container">
+            <div class="student-name" id="nameText">Ready</div>
+            
+            <div class="detail-row row-group">
+                <span class="label">KUMPULAN</span>
+                <span id="groupText">-</span>
+            </div>
+            
+            <div class="detail-row row-marks">
+                <span class="label">PENCAPAIAN</span>
+                <span id="marksText">-</span>
+            </div>
+        </div>
+    </div>
+
+    <input type="text" id="barcodeInput" autocomplete="off" />
+
+    <div id="controls">
+        <button id="btnSearch" onclick="event.stopPropagation(); openSearch()">🔍 SEARCH NAME</button>
+        
+        <div class="btn-row">
+            <label class="file-upload">📂 Import CSV <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileUpload(this)"></label>
+            <label class="file-upload">🖼️ Photos <input type="file" id="photoFolderInput" webkitdirectory directory multiple onchange="handlePhotoFolder(this)"></label>
+        </div>
+
+        <div class="btn-row">
+            <button id="btnAnim" onclick="event.stopPropagation(); toggleAnimation(true)" class="btn-toggle-on">✨ Anim: ON</button>
+            <button onclick="event.stopPropagation(); document.body.classList.toggle('chroma-mode')">🎨 Green</button>
+        </div>
+
+        <div class="btn-row">
+            <button onclick="event.stopPropagation(); setObsMode()">📺 OBS Mode</button>
+            <button onclick="event.stopPropagation(); clearDisplay()" class="btn-clear">❌ Clear</button>
+        </div>
+    </div>
+
+    <div id="searchModal">
+        <div class="close-btn" onclick="closeSearch()">✕</div>
+        <input type="text" id="searchInput" placeholder="Type name..." onkeyup="performSearch()" autocomplete="off">
+        <ul id="searchResults"></ul>
+    </div>
+
+    <script>
+        // --- 0. INITIALIZATION ---
+        document.title = "🎛️ CONTROLLER";
+
+        const channel = new BroadcastChannel('obs_scanner_channel');
+        let localDB = {};
+        let photoDB = {}; 
+        let transitionTimer;
+        let isAnimEnabled = true;
+
+        const PLACEHOLDER_IMG = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=";
+
+        loadFromLocalStorage();
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('studentData');
+            if (savedData) {
+                localDB = JSON.parse(savedData);
+                updateStatus();
+            } else {
+                updateStatus("No CSV Data.");
+            }
+        }
+
+        function updateStatus(msg) {
+            const statusDiv = document.getElementById('status-bar');
+            const dbCount = Object.keys(localDB).length;
+            const photoCount = Object.keys(photoDB).length;
+            
+            if (msg) {
+                statusDiv.innerText = msg;
+                statusDiv.style.color = "#ff4444";
+            } else {
+                statusDiv.innerText = `DB: ${dbCount} Students | Photos Loaded: ${photoCount}`;
+                statusDiv.style.color = "#00d2ff";
+            }
+        }
+
+        function handleFileUpload(inputElement) {
+            const file = inputElement.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { processCSV(e.target.result); };
+            reader.readAsText(file);
+        }
+
+        function processCSV(csvText) {
+            const lines = csvText.split('\n');
+            const newDB = {};
+            let count = 0;
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                const cols = line.split(',');
+                if (cols.length >= 4) {
+                    const id = cols[0].trim();
+                    newDB[id] = { name: cols[1].trim(), group: cols[2].trim(), marks: cols[3].trim() };
+                    count++;
+                }
+            }
+            localDB = newDB;
+            localStorage.setItem('studentData', JSON.stringify(localDB));
+            alert(`Success! Imported ${count} students.`);
+            loadFromLocalStorage();
+            channel.postMessage({ type: 'DB_UPDATED' });
+        }
+
+        function handlePhotoFolder(inputElement) {
+            const files = inputElement.files;
+            photoDB = {}; 
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const id = file.name.split('.').slice(0, -1).join('.');
+                photoDB[id] = URL.createObjectURL(file);
+            }
+            updateStatus();
+            alert(`Success! Loaded ${Object.keys(photoDB).length} photos.`);
+        }
+
+        const input = document.getElementById('barcodeInput');
+        const modal = document.getElementById('searchModal');
+        const searchBox = document.getElementById('searchInput');
+        const resultList = document.getElementById('searchResults');
+        const card = document.getElementById('displayCard');
+        const photoImg = document.getElementById('studentPhoto');
+        const nameT = document.getElementById('nameText');
+        const groupT = document.getElementById('groupText');
+        const marksT = document.getElementById('marksText');
+        const btnAnim = document.getElementById('btnAnim');
+        let isSearchOpen = false;
+
+        updateAnimUI();
+
+        channel.onmessage = (event) => {
+            const data = event.data;
+            if (data.type === 'SHOW_STUDENT') showStudentCard(data.id);
+            else if (data.type === 'CLEAR') doClear();
+            else if (data.type === 'CHROMA') document.body.classList.toggle('chroma-mode');
+            else if (data.type === 'DB_UPDATED') loadFromLocalStorage();
+            else if (data.type === 'ANIM_SYNC') {
+                isAnimEnabled = data.value;
+                updateAnimUI(); 
+            }
+        };
+
+        function setObsMode() { 
+            document.body.classList.add('obs-view');
+            document.title = "🔴 OBS OUTPUT";
+        }
+
+        document.body.addEventListener('click', () => { if (!isSearchOpen) input.focus(); });
+        setInterval(() => { if (!isSearchOpen) input.focus(); }, 1000);
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const code = input.value.trim();
+                if(code) {
+                    showStudentCard(code);
+                    channel.postMessage({ type: 'SHOW_STUDENT', id: code });
+                }
+                input.value = ''; 
+            }
+        });
+
+        function toggleAnimation(shouldBroadcast = false) {
+            isAnimEnabled = !isAnimEnabled;
+            updateAnimUI();
+            if (shouldBroadcast) channel.postMessage({ type: 'ANIM_SYNC', value: isAnimEnabled });
+        }
+
+        function updateAnimUI() {
+            if (isAnimEnabled) {
+                btnAnim.innerText = "✨ Anim: ON";
+                btnAnim.className = "btn-toggle-on";
+                card.classList.add('anim-enabled');
+            } else {
+                btnAnim.innerText = "⚡ Anim: OFF";
+                btnAnim.className = "btn-toggle-off";
+                card.classList.remove('anim-enabled');
+            }
+        }
+
+        function showStudentCard(code) {
+            if (!code) return;
+            const isVisible = card.classList.contains('visible');
+            let delayTime = 0;
+            if (isAnimEnabled && isVisible) {
+                delayTime = 500;
+                card.classList.remove('visible'); 
+            }
+
+            clearTimeout(transitionTimer);
+            transitionTimer = setTimeout(() => {
+                const student = localDB[code];
+                if (student) {
+                    nameT.innerText = student.name;
+                    groupT.innerText = student.group;
+                    marksT.innerText = student.marks;
+                } else {
+                    nameT.innerText = "NOT FOUND";
+                    groupT.innerText = "---";
+                    marksT.innerText = "---";
+                }
+                
+                if (photoDB[code]) photoImg.src = photoDB[code];
+                else photoImg.src = PLACEHOLDER_IMG;
+                
+                if (!card.classList.contains('visible')) {
+                    if (isAnimEnabled) void card.offsetWidth; 
+                    card.classList.add('visible');
+                }
+            }, delayTime);
+            
+            if(isSearchOpen) closeSearch(); 
+        }
+
+        function clearDisplay() { doClear(); channel.postMessage({ type: 'CLEAR' }); }
+        function doClear() { card.classList.remove('visible'); input.focus(); }
+
+        function openSearch() {
+            isSearchOpen = true;
+            modal.classList.add('active');
+            searchBox.value = "";
+            resultList.innerHTML = "";
+            setTimeout(() => { searchBox.focus(); }, 50);
+        }
+        function closeSearch() { isSearchOpen = false; modal.classList.remove('active'); input.focus(); }
+        function performSearch() {
+            const query = searchBox.value.toLowerCase();
+            resultList.innerHTML = "";
+            if(query.length < 1) return;
+            for (const [id, data] of Object.entries(localDB)) {
+                if (id.includes(query) || data.name.toLowerCase().includes(query)) {
+                    const li = document.createElement('li');
+                    li.className = 'result-item';
+                    li.innerHTML = `<span>${data.name}</span> <span style="color:#888; font-size:14px">ID: ${id}</span>`;
+                    li.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        showStudentCard(id); 
+                        channel.postMessage({ type: 'SHOW_STUDENT', id: id }); 
+                    };
+                    resultList.appendChild(li);
+                }
+            }
+        }
+        document.addEventListener('keydown', (e) => { if (e.key === "Escape") isSearchOpen ? closeSearch() : clearDisplay(); });
+        input.focus();
+    </script>
+</body>
+</html>
