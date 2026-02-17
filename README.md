@@ -81,14 +81,14 @@ To keep the broadcast clean while giving the operator controls, use the **Dual W
 
 ## 🔧 Troubleshooting
 
-**Q: The scanner beeps, but nothing happens.**
+**Q: The scanner beeps, but nothing happens.**<br>
 **A:** Ensure your barcode scanner is configured to add an "Enter" or "Carriage Return" suffix after scanning. This is usually a setting in your scanner's manual.
 
-**Q: The photos aren't showing up.**
+**Q: The photos aren't showing up.**<br>
 **A:** Ensure the filename matches the ID in the CSV exactly. `1001` in CSV will not match `1001 .jpg` (space) or `01001.jpg`.
 
-**Q: The two windows aren't syncing.**
+**Q: The two windows aren't syncing.**<br>
 **A:** Both windows must be open in the **same browser application** (e.g., both in Chrome). They cannot sync between Chrome and Firefox.
 
-**Q: OBS is capturing the Controller instead of the Output.**
+**Q: OBS is capturing the Controller instead of the Output.**<br>
 **A:** Make sure you clicked **📺 OBS Mode** on the second window. OBS looks for the window title `🔴 OBS OUTPUT`.
