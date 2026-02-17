@@ -92,7 +92,3 @@ To keep the broadcast clean while giving the operator controls, use the **Dual W
 
 **Q: OBS is capturing the Controller instead of the Output.**
 **A:** Make sure you clicked **📺 OBS Mode** on the second window. OBS looks for the window title `🔴 OBS OUTPUT`.
-
----
-
-## 📜 License
