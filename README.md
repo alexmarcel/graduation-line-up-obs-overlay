@@ -34,7 +34,7 @@ Create a `.csv` file using Excel or Notepad with the following header and struct
 >```10002,Siti Nurhaliza,BIRU,88%```<br>
 >```10003,John Doe,HIJAU,92%```<br>
 
-> **Note:** The headers must be exactly `id`, `name`, `group`, and `marks`.
+**Note:** The headers must be exactly `id`, `name`, `group`, and `marks`.
 
 ### 📸 The Photos
 Place all student photos in a single folder on your computer.
