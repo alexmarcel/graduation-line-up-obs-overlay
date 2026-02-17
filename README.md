@@ -34,3 +34,44 @@ id,name,group,marks
 10001,Ahmad Bin Ali,MERAH,95%
 10002,Siti Nurhaliza,BIRU,88%
 10003,John Doe,HIJAU,92%
+
+> **Note:** The headers must be exactly `id`, `name`, `group`, and `marks`.
+
+### 📸 The Photos
+Place all student photos in a single folder on your computer.
+
+* **Naming Convention:** The filename must match the Student ID.
+* **Example:** If the ID is `10001`, the photo must be named `10001.jpg` or `10001.png`.
+
+---
+
+## 🖥️ How to Use (The 2-Window Workflow)
+
+To keep the broadcast clean while giving the operator controls, use the **Dual Window** method:
+
+### Step 1: The Operator Window (Controller)
+1.  Open `scanner.html` in your browser.
+2.  Click **📂 Import CSV** and select your `.csv` file.
+3.  Click **🖼️ Load Photo Folder** and select the folder containing your images.
+    > **Note:** You must do this *every time* you reopen the browser due to security permissions.
+4.  This window will stay in the center of your screen with all controls visible.
+
+### Step 2: The Broadcast Window (Output)
+1.  Open `scanner.html` again in a **new tab** or **new window**.
+2.  Click the **📺 OBS Mode** button.
+3.  The window title will change to `🔴 OBS OUTPUT`, the controls will vanish, and the layout will shift to the **Left Side (Vertically Centered)**.
+
+### Step 3: Setup in OBS Studio
+1.  Add a **Window Capture** source.
+2.  Select `[chrome.exe]: 🔴 OBS OUTPUT`.
+3.  *(Optional)* If you want to remove the background, click **🎨 Green** on the controller and use a **Chroma Key** filter in OBS.
+
+---
+
+## 🎮 Controls
+
+| Button | Function |
+| :--- | :--- |
+| **🔍 SEARCH NAME** | Opens a large modal to type and search for a student manually. |
+| **✨ Anim: ON/OFF** | Toggles the smooth slide-in animation. Default is **ON**. |
+| **🎨 Green** | Toggles the background to bright green for Chroma Keying.
