@@ -74,3 +74,25 @@ To keep the broadcast clean while giving the operator controls, use the **Dual W
 | **🔍 SEARCH NAME** | Opens a large modal to type and search for a student manually. |
 | **✨ Anim: ON/OFF** | Toggles the smooth slide-in animation. Default is **ON**. |
 | **🎨 Green** | Toggles the background to bright green for Chroma Keying.
+| **📺 OBS Mode** | Switches the current window to "Output Mode" (hides UI, changes layout). |
+| **❌ Clear** | Removes the current student card from the screen. |
+
+---
+
+## 🔧 Troubleshooting
+
+**Q: The scanner beeps, but nothing happens.**
+**A:** Ensure your barcode scanner is configured to add an "Enter" or "Carriage Return" suffix after scanning. This is usually a setting in your scanner's manual.
+
+**Q: The photos aren't showing up.**
+**A:** Ensure the filename matches the ID in the CSV exactly. `1001` in CSV will not match `1001 .jpg` (space) or `01001.jpg`.
+
+**Q: The two windows aren't syncing.**
+**A:** Both windows must be open in the **same browser application** (e.g., both in Chrome). They cannot sync between Chrome and Firefox.
+
+**Q: OBS is capturing the Controller instead of the Output.**
+**A:** Make sure you clicked **📺 OBS Mode** on the second window. OBS looks for the window title `🔴 OBS OUTPUT`.
+
+---
+
+## 📜 License
