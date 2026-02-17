@@ -1,36 +1,36 @@
-# 🎓 OBS Student Barcode Scanner Overlay
+# 🎓 Student Barcode Scanner & OBS Overlay
 
-A lightweight, browser-based overlay for OBS Studio designed for live events, graduations, or school streams. It allows an operator to scan a student's barcode, which instantly triggers a lower-third style graphic on the live stream showing the student's **Name**, **Group (Kumpulan)**, **Marks (Pencapaian)**, and **Photo**.
+A serverless, browser-based tool designed for live event production (graduations, school assemblies, award ceremonies). It allows an operator to scan a student's ID barcode or manually search their name to trigger a broadcast-ready lower-third graphic containing their **Name**, **Group (Kumpulan)**, **Marks (Pencapaian)**, and **Photo**.
 
-The best part? **No web server, database, or backend required.** It runs entirely in your local web browser using CSV files and local folders.
+![Project Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![Technology](https://img.shields.io/badge/Tech-HTML%20%2F%20JS%20%2F%20CSS-blue)
 
-## ✨ Features
+## ✨ Key Features
 
-* **Dual-Window Sync System**: Open the file twice. One window acts as your **Controller** (with buttons and search), and the other acts as the **OBS Output** (clean graphic). They sync instantly using the browser's native `BroadcastChannel`.
-* **USB Barcode Support**: Works out-of-the-box with standard USB barcode scanners (Keyboard emulation with Enter suffix).
-* **Local CSV Import**: Easily load hundreds of students using a standard `.csv` file. Data is saved to your browser's Local Storage.
-* **Local Photo Import**: Map student IDs to local image files seamlessly.
-* **Manual Search**: Built-in modal to manually search and trigger names if a barcode fails to scan.
-* **Customizable Animations**: Toggle smooth fade-in/fade-out transitions.
-* **Green Screen Ready**: Built-in Chroma Key background toggle for easy OBS integration.
+* **Dual-Window Sync:** Run a "Controller" window for the operator and a clean "Output" window for OBS. They sync instantly using the browser's `BroadcastChannel` API.
+* **Zero Backend Required:** Runs entirely in your web browser. No servers, no databases, no installation.
+* **USB Barcode Support:** Compatible with standard USB scanners (Keyboard Emulation).
+* **CSV Data Import:** Load hundreds of student records instantly via Excel/CSV.
+* **Local Photo Mapping:** Automatically matches student IDs to photos in a local folder.
+* **Manual Search:** Large, touch-friendly search interface for when barcodes fail.
+* **OBS-Ready:** Dedicated "OBS Mode" with specific layout (Vertical Center Left) and Green Screen support.
+* **Animations:** Smooth fade-in/fade-out transitions (toggleable).
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Installation
-Because this is a serverless application, installation is incredibly simple:
-1. Download or clone this repository.
-2. Locate the `scanner.html` file.
-3. Open `scanner.html` in Google Chrome, Microsoft Edge, or OBS Browser Source (Note: Chrome/Edge is recommended for the Controller window).
+There is no installation required.
+1.  Download the `scanner.html` file from this repository.
+2.  Open it in **Google Chrome** or **Microsoft Edge**.
 
-### 2. Prepare Your Data
-You need two things to use this system: a CSV file and a folder of photos.
+### 2. Preparing Your Data
 
-**A. The CSV File (`students.csv`)**
-Create a CSV file (e.g., using Excel) with the following exact columns: `id,name,group,marks`.
+**The CSV File:**
+Create a `.csv` file using Excel or Notepad with the following header and structure:
 ```csv
 id,name,group,marks
-10001,John Doe,Class A,85%
-10002,Jane Smith,Class B,92%
-10003,Alex Johnson,Class A,78%
+10001,Ahmad Bin Ali,MERAH,95%
+10002,Siti Nurhaliza,BIRU,88%
+10003,John Doe,HIJAU,92%
