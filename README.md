@@ -5,6 +5,9 @@ A serverless, browser-based tool designed for live event production (graduations
 ![Project Status](https://img.shields.io/badge/Status-Active-brightgreen)
 ![Technology](https://img.shields.io/badge/Tech-HTML%20%2F%20JS%20%2F%20CSS-blue)
 
+<img width="1430" height="803" alt="Screenshot4" src="https://github.com/user-attachments/assets/04e42ad5-cfa8-44f9-afa8-823ad82d89c2" />
+Sample usage : https://www.facebook.com/ilkkmtawau/videos/1556095438983504
+
 ## ✨ Key Features
 
 * **Dual-Window Sync:** Run a "Controller" window for the operator and a clean "Output" window for OBS. They sync instantly using the browser's `BroadcastChannel` API.
