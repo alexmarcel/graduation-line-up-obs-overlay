@@ -80,6 +80,23 @@
         body.obs-view #controls,
         body.obs-view #status-bar { display: none !important; }
 
+        #obsImportBar {
+            display: none;
+            position: fixed; bottom: 12px; right: 12px; z-index: 200;
+            gap: 6px; flex-direction: row; align-items: center;
+        }
+        body.obs-view #obsImportBar { display: flex; }
+        #obsImportBar .obs-import-btn {
+            display: flex; flex-direction: row; align-items: center; gap: 5px;
+            padding: 5px 10px; font-size: 11px; font-family: inherit;
+            background: rgba(0,0,0,0.6); color: #fff;
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+            cursor: pointer; opacity: 0.3; transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        #obsImportBar .obs-import-btn:hover { opacity: 1; }
+        #obsImportBar .obs-import-btn input { display: none; }
+
         #exitObsBtn {
             display: none;
             position: fixed; top: 12px; right: 12px; z-index: 200;
@@ -117,6 +134,9 @@
                         box-shadow 0.4s ease;
         }
         #displayCard.visible { opacity: 1; transform: translateY(0); }
+        #displayCard.no-avatar #studentPhoto { display: none; }
+        #displayCard.no-avatar { padding-left: calc(28px + 175px + 36px); border-radius: 20px; }
+        #displayCard.flat-card { border-radius: 20px; }
 
         /* =============================================
            STUDENT PHOTO
@@ -385,6 +405,27 @@
             text-transform: uppercase; color: var(--text-dim);
             margin-bottom: -4px;
         }
+
+        /* ---- Toggle Switch ---- */
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 2px;
+        }
+        .toggle-row label { font-size: 12px; color: var(--text-muted); cursor: pointer; user-select: none; }
+        .pill-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+        .pill-switch input { opacity: 0; width: 0; height: 0; }
+        .pill-switch .track {
+            position: absolute; inset: 0; border-radius: 20px;
+            background: var(--surface); border: 1px solid var(--border);
+            transition: background 0.2s, border-color 0.2s; cursor: pointer;
+        }
+        .pill-switch .track::after {
+            content: ''; position: absolute; top: 2px; left: 2px;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: var(--text-dim); transition: transform 0.2s, background 0.2s;
+        }
+        .pill-switch input:checked + .track { background: var(--accent-dim); border-color: var(--accent); }
+        .pill-switch input:checked + .track::after { transform: translateX(16px); background: var(--accent); }
 
         /* ---- Text Align Buttons ---- */
         .align-btn-row {
@@ -833,6 +874,17 @@
         <i data-lucide="layout-dashboard"></i> Controller Mode
     </button>
 
+    <div id="obsImportBar">
+        <label class="obs-import-btn">
+            <i data-lucide="image"></i> Photos
+            <input type="file" webkitdirectory directory multiple onchange="handlePhotoFolder(this)">
+        </label>
+        <label class="obs-import-btn">
+            <i data-lucide="music"></i> Audio
+            <input type="file" webkitdirectory directory multiple accept=".wav,.mp3" onchange="handleAudioFolder(this)">
+        </label>
+    </div>
+
     <div id="status-bar">
         <div id="status-dot"></div>
         <span id="status-text">Waiting for CSV &amp; Photos...</span>
@@ -882,7 +934,7 @@
                 </div>
                 <div class="gs-step">
                     <div class="gs-num">4</div>
-                    <div class="gs-text"><strong>Open OBS Mode</strong> — in a second window, click <strong>OBS Mode</strong>. Add that window as a Browser Source in OBS</div>
+                    <div class="gs-text"><strong>Open OBS Mode</strong> — in a second window, click <strong>OBS Mode</strong>. Add that window as a Browser Source in OBS. Photos and audio sync automatically via browser storage. If the OBS window is opened fresh, use the <strong>Photos</strong> and <strong>Audio</strong> buttons in the bottom-right corner of the OBS window to reload them</div>
                 </div>
                 <div class="gs-step">
                     <div class="gs-num">5</div>
@@ -974,6 +1026,24 @@
                 </button>
             </div>
 
+            <!-- Avatar Toggle -->
+            <div class="toggle-row">
+                <label for="avatarToggle">Show Avatar on Card</label>
+                <label class="pill-switch">
+                    <input type="checkbox" id="avatarToggle" checked onchange="toggleAvatar()">
+                    <span class="track"></span>
+                </label>
+            </div>
+
+            <!-- Rounded Card Toggle -->
+            <div class="toggle-row">
+                <label for="roundedCardToggle">Rounded Card (Avatar Side)</label>
+                <label class="pill-switch">
+                    <input type="checkbox" id="roundedCardToggle" checked onchange="toggleRoundedCard()">
+                    <span class="track"></span>
+                </label>
+            </div>
+
             <!-- Accent Color -->
             <div class="ctrl-label">Card Accent Color</div>
             <div class="color-picker-row" id="accentSwatches">
@@ -1014,7 +1084,7 @@
                     <div class="color-swatch"></div>
                     <label class="swatch-pick-btn" title="Pick color">&#128396;<input type="color"></label>
                 </div>
-                <button id="btnChroma" onclick="event.stopPropagation(); toggleChroma()" style="flex:1;">
+                <button id="btnChroma" onclick="event.stopPropagation(); toggleChroma()" class="btn-toggle-off" style="flex:1;">
                     <span class="btn-icon"><i data-lucide="blend"></i></span>
                     <span class="btn-label" id="btnChromaLabel">Chroma: OFF</span>
                 </button>
@@ -1115,6 +1185,8 @@
         loadColorSettings();
         updateAnimUI();
         if (localStorage.getItem('audioEnabled') === '0') { isAudioEnabled = false; const btn = document.getElementById('btnAudioToggle'); document.getElementById('btnAudioLabel').textContent = 'Audio: OFF'; btn.className = 'btn-toggle-off'; btn.querySelector('i').setAttribute('data-lucide','volume-x'); }
+        if (localStorage.getItem('avatarEnabled') === '0') { const el = document.getElementById('avatarToggle'); if(el) el.checked = false; card.classList.add('no-avatar'); }
+        if (localStorage.getItem('roundedCard') === '0') { const el = document.getElementById('roundedCardToggle'); if(el) el.checked = false; card.classList.add('flat-card'); }
 
         // =============================================
         // 1. BROADCAST CHANNEL
@@ -1125,8 +1197,11 @@
             else if (data.type === 'CLEAR')        doClear();
             else if (data.type === 'CHROMA')       applyChromaState(data.value, data.color);
             else if (data.type === 'DB_UPDATED')   loadFromLocalStorage();
+            else if (data.type === 'PHOTOS_UPDATED') { const s = localStorage.getItem('photoDB_b64'); if (s) { photoDB = JSON.parse(s); buildQueuePanel(); } }
+            else if (data.type === 'AUDIO_UPDATED')  { const s = localStorage.getItem('audioDB_b64');  if (s) audioDB = JSON.parse(s); }
             else if (data.type === 'ANIM_SYNC')    { isAnimEnabled = data.value; updateAnimUI(); }
             else if (data.type === 'ACCENT')       applyAccentColor(data.color);
+            else if (data.type === 'SETTINGS_SYNC') applySettings(data.settings);
         };
 
         // =============================================
@@ -1142,6 +1217,10 @@
             } else {
                 updateStatus('error');
             }
+            const savedPhotos = localStorage.getItem('photoDB_b64');
+            if (savedPhotos) photoDB = JSON.parse(savedPhotos);
+            const savedAudio = localStorage.getItem('audioDB_b64');
+            if (savedAudio) audioDB = JSON.parse(savedAudio);
         }
 
         function updateStatus(state) {
@@ -1195,33 +1274,55 @@
         }
 
         function handlePhotoFolder(inputElement) {
-            const files = inputElement.files;
+            const files = Array.from(inputElement.files);
             photoDB = {};
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+            if (!files.length) return;
+            let loaded = 0;
+            const b64map = {};
+            files.forEach(file => {
                 const id = file.name.split('.').slice(0, -1).join('.');
-                photoDB[id] = URL.createObjectURL(file);
-            }
-            updateStatus();
-            buildQueuePanel();
-            showToast(`Loaded ${Object.keys(photoDB).length} photos`, 'success');
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const dataUrl = e.target.result;
+                    photoDB[id] = dataUrl;
+                    b64map[id] = dataUrl;
+                    loaded++;
+                    if (loaded === files.length) {
+                        try { localStorage.setItem('photoDB_b64', JSON.stringify(b64map)); } catch(e) { showToast('Photos too large for browser storage — use the Photos button in the OBS window to load them there directly', 'error'); }
+                        updateStatus();
+                        buildQueuePanel();
+                        channel.postMessage({ type: 'PHOTOS_UPDATED' });
+                        showToast(`Loaded ${loaded} photos`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         function handleAudioFolder(inputElement) {
-            const files = inputElement.files;
-            // Revoke previous object URLs
-            Object.values(audioDB).forEach(url => URL.revokeObjectURL(url));
+            const files = Array.from(inputElement.files).filter(f => /\.(wav|mp3)$/i.test(f.name));
             audioDB = {};
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+            if (!files.length) return;
+            let loaded = 0;
+            const b64map = {};
+            files.forEach(file => {
                 const ext = file.name.split('.').pop().toLowerCase();
-                if (ext === 'wav' || ext === 'mp3') {
-                    const id = file.name.slice(0, -(ext.length + 1));
-                    audioDB[id] = URL.createObjectURL(file);
-                }
-            }
-            updateStatus();
-            showToast(`Loaded ${Object.keys(audioDB).length} audio files`, 'success');
+                const id = file.name.slice(0, -(ext.length + 1));
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const dataUrl = e.target.result;
+                    audioDB[id] = dataUrl;
+                    b64map[id] = dataUrl;
+                    loaded++;
+                    if (loaded === files.length) {
+                        try { localStorage.setItem('audioDB_b64', JSON.stringify(b64map)); } catch(e) { showToast('Audio files too large for browser storage — use the Audio button in the OBS window to load them there directly', 'error'); }
+                        updateStatus();
+                        channel.postMessage({ type: 'AUDIO_UPDATED' });
+                        showToast(`Loaded ${loaded} audio files`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         // =============================================
@@ -1573,11 +1674,13 @@
                 const color = getComputedStyle(document.documentElement).getPropertyValue('--chroma-color').trim();
                 document.body.style.backgroundColor = color;
                 document.getElementById('btnChromaLabel').textContent = 'Chroma: ON';
-                btn.style.borderLeftColor = 'var(--accent)';
+                btn.className = 'btn-toggle-on';
+                btn.style.borderColor = '';
             } else {
                 document.body.style.backgroundColor = '';
                 document.getElementById('btnChromaLabel').textContent = 'Chroma: OFF';
-                btn.style.borderLeftColor = '';
+                btn.className = 'btn-toggle-off';
+                btn.style.borderColor = '';
             }
             channel.postMessage({ type: 'CHROMA', value: isChromaOn, color: getComputedStyle(document.documentElement).getPropertyValue('--chroma-color').trim() });
         }
@@ -1585,7 +1688,10 @@
         function applyChromaState(value, color) {
             isChromaOn = value;
             if (color) document.documentElement.style.setProperty('--chroma-color', color);
-            document.body.style.backgroundColor = value ? (color || getComputedStyle(document.documentElement).getPropertyValue('--chroma-color').trim()) : '';
+            const resolvedColor = color || getComputedStyle(document.documentElement).getPropertyValue('--chroma-color').trim();
+            document.body.style.backgroundColor = value ? resolvedColor : '';
+            const btn = document.getElementById('btnChroma');
+            if (btn) { btn.className = value ? 'btn-toggle-on' : 'btn-toggle-off'; btn.style.borderColor = ''; }
         }
 
         function loadColorSettings() {
@@ -1596,9 +1702,40 @@
             applyCardAlign(savedAlign);
         }
 
+        function broadcastSettings() {
+            channel.postMessage({ type: 'SETTINGS_SYNC', settings: {
+                avatarEnabled: localStorage.getItem('avatarEnabled'),
+                roundedCard:   localStorage.getItem('roundedCard'),
+                cardTextAlign: localStorage.getItem('cardTextAlign') || 'left',
+            }});
+        }
+
+        function applySettings(s) {
+            if (s.avatarEnabled === '0') card.classList.add('no-avatar');
+            else card.classList.remove('no-avatar');
+            if (s.roundedCard === '0') card.classList.add('flat-card');
+            else card.classList.remove('flat-card');
+            applyCardAlign(s.cardTextAlign || 'left');
+        }
+
+        function toggleRoundedCard() {
+            const enabled = document.getElementById('roundedCardToggle').checked;
+            card.classList.toggle('flat-card', !enabled);
+            localStorage.setItem('roundedCard', enabled ? '1' : '0');
+            broadcastSettings();
+        }
+
+        function toggleAvatar() {
+            const enabled = document.getElementById('avatarToggle').checked;
+            card.classList.toggle('no-avatar', !enabled);
+            localStorage.setItem('avatarEnabled', enabled ? '1' : '0');
+            broadcastSettings();
+        }
+
         function setCardAlign(align) {
             applyCardAlign(align);
             localStorage.setItem('cardTextAlign', align);
+            broadcastSettings();
         }
 
         function applyCardAlign(align) {
