@@ -8,7 +8,7 @@ A serverless, single-file browser tool for live graduation ceremony production. 
 
 <img width="1430" height="803" alt="Screenshot" src="https://github.com/user-attachments/assets/04e42ad5-cfa8-44f9-afa8-823ad82d89c2" />
 
-**Sample usage:** https://www.facebook.com/ilkkmtawau/videos/1556095438983504
+**Sample usage:** [https://www.facebook.com/ilkkmtawau/videos/1556095438983504](https://www.youtube.com/watch?v=HX_6nw8k-v4)
 
 ---
 
